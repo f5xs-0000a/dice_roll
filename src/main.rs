@@ -1,7 +1,8 @@
 use core::time::Duration;
-use rand::random;
-use clap::Parser;
 use std::io::Write;
+
+use clap::Parser;
+use rand::random;
 
 #[derive(Parser)]
 struct Args {
@@ -12,7 +13,9 @@ fn main() {
     let args = Args::parse();
 
     if args.sizes.len() != 0 {
-        eprintln!("`sizes` should have a number. Use --help for more information.");
+        eprintln!(
+            "`sizes` should have a number. Use --help for more information."
+        );
     };
 
     roll_dice(&*args.sizes);
@@ -31,14 +34,18 @@ fn roll_dice(sizes: &[usize]) {
         rolls.clear();
 
         for die in sizes.iter() {
-            rolls.push(random::<usize>() % die + 1); // you can do a better randomizer here
+            // you can do a better randomizer here
+            rolls.push(random::<usize>() % die + 1);
         }
 
         write_dice_faces(&*rolls, &mut stdout).unwrap();
     }
 }
 
-fn write_dice_faces(rolls: &[usize], w: &mut impl Write) -> std::io::Result<()> {
+fn write_dice_faces(
+    rolls: &[usize],
+    w: &mut impl Write,
+) -> std::io::Result<()> {
     for roll in rolls.iter() {
         write!(w, "{}  ", roll)?;
     }
