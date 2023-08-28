@@ -1,9 +1,11 @@
 use core::time::Duration;
-use std::io::Write;
-use std::fmt::Write as _;
+use std::{
+    fmt::Write as _,
+    io::Write,
+};
 
-use itertools::Itertools as _;
 use clap::Parser;
+use itertools::Itertools as _;
 use rand::random;
 
 #[derive(Parser)]
@@ -80,5 +82,5 @@ fn determine_digits(mut x: usize) -> usize {
         x /= 10;
     }
 
-    digits 
+    digits
 }
