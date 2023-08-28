@@ -1,5 +1,6 @@
 use core::time::Duration;
 use std::io::Write;
+use std::fmt::Write as _;
 
 use clap::Parser;
 use rand::random;
@@ -24,7 +25,7 @@ fn main() {
 fn roll_dice(sizes: &[usize]) {
     use std::time::Instant;
 
-    let mut rolls = Vec::with_capacity(sizes.len());
+    let mut rolls = Vec::with_capacity(dbg!(sizes).len());
     let one_second = Duration::from_secs(1);
     let mut stdout = std::io::stdout().lock();
     let mut buffer = String::new();
@@ -41,21 +42,29 @@ fn roll_dice(sizes: &[usize]) {
             rolls.push(random::<usize>() % die + 1);
         }
 
-        write_dice_faces(&*rolls, &mut buffer).unwrap();
+        let text = write_dice_faces(&*rolls);
 
         // write to stdout and flush
-        write!(&mut stdout, "\x1B[2J\x1B[1;1H{}", buffer);
+        write!(&mut stdout, "\x1B[2J\x1B[1;1H{}", text);
         stdout.flush();
     }
 }
 
 fn write_dice_faces(
     rolls: &[usize],
-    w: &mut impl core::fmt::Write,
-) -> Result<(), core::fmt::Error> {
+) -> String {
+    let mut buffer = String::new();
+
+    buffer += "<";
     for roll in rolls.iter() {
-        write!(w, "{}  ", roll)?;
+        write!(&mut buffer, "{} ", roll).unwrap();
     }
 
-    Ok(())
+    if !rolls.is_empty() {
+        buffer.pop();
+    }
+
+    buffer += ">";
+
+    text_to_ascii_art::convert(buffer).unwrap()
 }
