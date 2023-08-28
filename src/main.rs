@@ -2,6 +2,7 @@ use core::time::Duration;
 use std::io::Write;
 use std::fmt::Write as _;
 
+use itertools::Itertools as _;
 use clap::Parser;
 use rand::random;
 
@@ -42,22 +43,24 @@ fn roll_dice(sizes: &[usize]) {
             rolls.push(random::<usize>() % die + 1);
         }
 
-        let text = write_dice_faces(&*rolls);
+        let text = write_dice_faces(&*rolls, sizes);
 
         // write to stdout and flush
-        write!(&mut stdout, "\x1B[2J\x1B[1;1H{}", text);
-        stdout.flush();
+        write!(&mut stdout, "\x1B[2J\x1B[1;1H{}", text).unwrap();
+        stdout.flush().unwrap();
     }
 }
 
 fn write_dice_faces(
     rolls: &[usize],
+    die_size: &[usize],
 ) -> String {
     let mut buffer = String::new();
 
     buffer += "<";
-    for roll in rolls.iter() {
-        write!(&mut buffer, "{} ", roll).unwrap();
+    for (roll, die_size) in rolls.iter().zip_eq(die_size.iter()) {
+        let padding = determine_digits(*die_size);
+        write!(&mut buffer, "{:0>padding$} ", roll).unwrap();
     }
 
     if !rolls.is_empty() {
@@ -67,4 +70,15 @@ fn write_dice_faces(
     buffer += ">";
 
     text_to_ascii_art::convert(buffer).unwrap()
+}
+
+fn determine_digits(mut x: usize) -> usize {
+    let mut digits = 1;
+
+    while 10 <= x {
+        digits += 1;
+        x /= 10;
+    }
+
+    digits 
 }
